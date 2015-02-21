@@ -42,7 +42,11 @@ var gamecount;
 var winamount;
 var jackpotText: createjs.Text;
 
+// Variables for sound
 
+
+
+var win = new Audio("assets/sound/winnning.wav");
 
 // Tiles array
 var tiles: createjs.Bitmap[] = [];
@@ -91,7 +95,8 @@ function spinReels() {
             game.addChild(tiles[tile]);
             console.log(game.getNumChildren());
             turn++;
-        }        
+        }
+        addGameCount();
         resetFruitTally();
 
     }
@@ -171,7 +176,13 @@ function determineWinnings() {
         } else if (bells == 3) {
             winnings = playerBet * 75;
         } else if (sevens == 3) {
-            winnings = playerBet * 100;           
+            winnings = playerBet * 100;
+            winnings += jackpot;
+            game.removeChild(jackpotText);
+            jackpotText = new createjs.Text("You Won The Jackpot of $ 5000", "18px  Consolas", "White");
+            jackpotText.x = 80;
+            jackpotText.y = 20;
+            game.addChild(jackpotText);
         } else if (grapes == 2) {
             winnings = playerBet * 2;
         } else if (bananas == 2) {
@@ -193,30 +204,88 @@ function determineWinnings() {
         else {
             winnings = playerBet * 1;
         }
-        winNumber++;       
+        winNumber++;
+        playerMoney += winnings;
+        playerBet = 0;
+        addBet();
          showWinMessage();
     } else {
         lossNumber++;
-        playerBet = 0;        
+        playerBet = 0;
+        addBet();
         showLossMessage();
     }
 }
 
 function showWinMessage() {   
-    console.log("You Won" + winnings);
+    win.play(); 
+    addCredit();
+    addWinAmount();
 }
 
 function showLossMessage() {
-    console.log("You Lost" + playerBet);    
+    console.log("You Lost" + playerBet);
+    addWinAmount();
 }
 
 
+function addCredit() {
+    game.removeChild(credit);
+    credit = new createjs.Text("  " + playerMoney, "22px  Consolas", "white");
+    credit.x = 350;
+    credit.y = 310;
+    game.addChild(credit);
+}
+
+function addGameCount() {
+    game.removeChild(gamecount);
+    gamecount = new createjs.Text(" " + gameplayed, "22px  Consolas", "white");
+    gamecount.x = 220;
+    gamecount.y = 310;
+    game.addChild(gamecount);
+}
+
+function addWinAmount() {
+    game.removeChild(winamount);
+    winamount = new createjs.Text("  " + winnings, "22px  Consolas", "white");
+    winamount.x = 175;
+    winamount.y = 50;
+    game.addChild(winamount);
+}
+
+
+function addBet() {
+    game.removeChild(bet);
+    bet = new createjs.Text("  " + playerBet, "22px  Consolas", "white");
+    bet.x = 58;
+    bet.y = 310;
+    game.addChild(bet);
+}
 
 
 // Functions for betMaxButton 
 
 function betMaxButtonClicked() {
 
+    game.removeChild(bet);
+    game.removeChild(credit);
+    if (playerBet+10 <= 100) {
+        playerBet += 10;
+        addBet();
+        playerMoney -= 10;
+        addCredit();
+    }
+    else {
+        playerMoney += playerBet;
+        playerBet = 0;
+        game.removeChild(winamount);
+        game.removeChild(gamecount);
+        alert("Maximum Bet Amount is 100");
+        addBet();
+        addCredit();
+        addGameCount();
+        addWinAmount();
+    }
 }
 
 
@@ -240,21 +309,59 @@ function resetButtonClicked() {
     resetFruitTally();
     playerBet = 0;
     gameplayed = 0;
-    playerMoney = 1000; 
+    playerMoney = 1000;
+    addBet();
+    addCredit();
+    addGameCount();
+    addWinAmount();
 }
 
 // Functions for betOneButton 
 
 function betOneButtonClicked() {                
+        game.removeChild(bet);  
+    game.removeChild(credit);    
+    win.pause();      
+    if (playerBet+1 <= 100) {
+        playerBet++;
+        addBet();
+        playerMoney--;
+        addCredit();
+    }
+    else {
         game.removeChild(gamecount);
         game.removeChild(winamount);
-        playerMoney += playerBet;             
+        playerMoney += playerBet;
+        playerBet = 0;
+        alert("Maximum Bet Amount is 100");        
+        addBet();
+        addCredit();
+        addGameCount();
+        addWinAmount();        
+    }        
 }
 
 function doubleBetButtonClicked() {
+    game.removeChild(bet);
+    game.removeChild(credit); 
+    if (playerBet*2 <= 100) {
+        playerBet *= 2;
+        addBet();
+        playerMoney -= playerBet/2;
+        addCredit();
+    }
+    else {
+        game.removeChild(gamecount);
+        game.removeChild(winamount);
         playerMoney += playerBet;
         playerBet = 0;
-        alert("Maximum Bet Amount is 100");            
+        alert("Maximum Bet Amount is 100");
+        addBet();
+        addCredit();
+        addGameCount();
+        addWinAmount();
+        addWinAmount();
+    }
 }
 
 function creatUI(): void {

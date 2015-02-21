@@ -44,8 +44,6 @@ var jackpotText: createjs.Text;
 
 // Variables for sound
 
-
-
 var win = new Audio("assets/sound/winnning.wav");
 
 // Tiles array
@@ -228,7 +226,6 @@ function showLossMessage() {
     addWinAmount();
 }
 
-
 function addCredit() {
     game.removeChild(credit);
     credit = new createjs.Text("  " + playerMoney, "22px  Consolas", "white");
@@ -287,7 +284,6 @@ function betMaxButtonClicked() {
         addWinAmount();
     }
 }
-
 
 // Functions for powerButton 
 

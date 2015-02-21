@@ -43,18 +43,22 @@ var winamount;
 var jackpotText: createjs.Text;
 
 // Variables for sound
-
 var win = new Audio("assets/sound/winnning.wav");
 
 // Tiles array
 var tiles: createjs.Bitmap[] = [];
 var tileContainers: createjs.Container[] = [];
+
+
 function init() {
+    // Canvas element fetching
     canvas = document.getElementById("canvas");
+    // stage element initialization
     stage = new createjs.Stage(canvas);    
     stage.enableMouseOver(20); // Enable mouse events
     createjs.Ticker.setFPS(60); // 60 frames per second
     createjs.Ticker.addEventListener("tick", gameLoop);
+    //calling main function 
     main();
 }
 
@@ -71,31 +75,37 @@ function resetFruitTally() {
     winnings = 0;
 }
 
+// gameloop function to update stage 
 function gameLoop() {
     stage.update();
 }
 
+// spinreel function which will be called on spinbutton click event
 function spinReels() {    
-    // Add Spin Reels code here
+   
+    // check if player place bet  or not 
     if (playerBet > 0) {
+        // remove child from game container
         game.removeChild(gamecount);
-        gameplayed++;
-        spinResult = Reels();
-        fruits = spinResult[0] + " - " + spinResult[1] + " - " + spinResult[2];
-        console.log(fruits);
+        gameplayed++; // increase gameplayed by 1
+        spinResult = Reels(); // call rells method to get result for reel(3 boxes) 
+        fruits = spinResult[0] + " - " + spinResult[1] + " - " + spinResult[2];        
+        // loop to add respective item image to the screen of the slot machine
         for (var tile = 0; tile < 3; tile++) {
+            // remove child if turn is greater than 0
             if (turn > 0) {
                 game.removeChild(tiles[tile]);
             }
+            // creating image
             tiles[tile] = new createjs.Bitmap("assets/images/" + spinResult[tile] + ".jpg");
-            tiles[tile].x = 62 + (127 * tile);
+            tiles[tile].x = 62 + (127 * tile);// deciding what will be x co-ordinate of image
             tiles[tile].y = 95;
-            game.addChild(tiles[tile]);
-            console.log(game.getNumChildren());
+            game.addChild(tiles[tile]); // add image to the game
+            // console.log(game.getNumChildren());
             turn++;
         }
-        addGameCount();
-        resetFruitTally();
+        addGameCount(); // adding game count element to game
+        resetFruitTally(); // reset fruit tally 
 
     }
     else {
@@ -117,8 +127,9 @@ function Reels() {
     
     var betLine = [" ", " ", " "];
     var outCome = [0, 0, 0];
+    // loop to determine betline result
     for (var spin = 0; spin < 3; spin++) {
-        outCome[spin] = Math.floor((Math.random() * 65) + 1);
+        outCome[spin] = Math.floor((Math.random() * 65) + 1); // randomly generate number
         switch (outCome[spin]) {
             case checkRange(outCome[spin], 1, 27):
                 betLine[spin] = "blank";
@@ -154,7 +165,7 @@ function Reels() {
                 break;
         }
     }  
-    determineWinnings();
+    determineWinnings(); // calling determingwinning
     return betLine;
 }
 
@@ -203,37 +214,41 @@ function determineWinnings() {
             winnings = playerBet * 1;
         }
         winNumber++;
-        playerMoney += winnings;
+        playerMoney += winnings; // add winnings to  player credit
         playerBet = 0;
-        addBet();
-         showWinMessage();
+        addBet(); // adding bet 
+         showWinMessage(); // showing win message
     } else {
         lossNumber++;
         playerBet = 0;
-        addBet();
+        addBet(); // adding bet
         showLossMessage();
     }
 }
 
+ // displays win message and resets stuff accordingly 
 function showWinMessage() {   
     win.play(); 
     addCredit();
     addWinAmount();
 }
 
+ // displays loss message and resets stuff accordingly 
 function showLossMessage() {
     console.log("You Lost" + playerBet);
     addWinAmount();
 }
 
+// addcredit function to display playermoney(credit) to screen
 function addCredit() {
-    game.removeChild(credit);
+    game.removeChild(credit); // remove child from game is exists
     credit = new createjs.Text("  " + playerMoney, "22px  Consolas", "white");
     credit.x = 350;
     credit.y = 310;
-    game.addChild(credit);
+    game.addChild(credit); // add credit to game
 }
 
+// addGameCount function to display game played to screen
 function addGameCount() {
     game.removeChild(gamecount);
     gamecount = new createjs.Text(" " + gameplayed, "22px  Consolas", "white");
@@ -242,6 +257,7 @@ function addGameCount() {
     game.addChild(gamecount);
 }
 
+// addWinAmount function to display amount won to screen
 function addWinAmount() {
     game.removeChild(winamount);
     winamount = new createjs.Text("  " + winnings, "22px  Consolas", "white");
@@ -250,7 +266,7 @@ function addWinAmount() {
     game.addChild(winamount);
 }
 
-
+// addBet function to display Bet amount to screen
 function addBet() {
     game.removeChild(bet);
     bet = new createjs.Text("  " + playerBet, "22px  Consolas", "white");
@@ -264,8 +280,10 @@ function addBet() {
 
 function betMaxButtonClicked() {
 
+    // remove child element if exists
     game.removeChild(bet);
     game.removeChild(credit);
+    // check of bet is going greater than maximum amount or not
     if (playerBet+10 <= 100) {
         playerBet += 10;
         addBet();
@@ -289,23 +307,28 @@ function betMaxButtonClicked() {
 
 function powerButtonClicked()
 {
-    if (confirm("Are you Sure You Want to exit ?"))
+    // check reply of confirm message
+    if (confirm("Are you Sure You Want to exit ?")/* showing confirm message */)
     {
-        self.close();
+        self.close();// close the page
     }  
 }
 
 // Functions for resetButton 
 
 function resetButtonClicked() {
+
+    // remove child if exist
     game.removeChild(bet);
     game.removeChild(credit);
     game.removeChild(winamount);
     game.removeChild(gamecount);
-    resetFruitTally();
+    resetFruitTally(); // resetfruittally
     playerBet = 0;
     gameplayed = 0;
     playerMoney = 1000;
+
+    // show reseted bet,crefit,gamecount and winamount to the screen
     addBet();
     addCredit();
     addGameCount();
@@ -318,11 +341,12 @@ function betOneButtonClicked() {
         game.removeChild(bet);  
     game.removeChild(credit);    
     win.pause();      
+    // check of bet is going greater than maximum amount or not
     if (playerBet+1 <= 100) {
-        playerBet++;
-        addBet();
-        playerMoney--;
-        addCredit();
+        playerBet++; // add 1 to playerbet
+        addBet(); // show new bet amont on screen
+        playerMoney--; // decrease 1 from playermoney
+        addCredit(); // show new playermoney on screen
     }
     else {
         game.removeChild(gamecount);
@@ -330,13 +354,14 @@ function betOneButtonClicked() {
         playerMoney += playerBet;
         playerBet = 0;
         alert("Maximum Bet Amount is 100");        
-        addBet();
+        addBet(); // show new bet amont on screen
         addCredit();
         addGameCount();
         addWinAmount();        
     }        
 }
 
+// doublebet button click event 
 function doubleBetButtonClicked() {
     game.removeChild(bet);
     game.removeChild(credit); 
@@ -418,11 +443,12 @@ function main() {
     game.x = 23;
     game.y = 6;
 
+     // adding bet, credit, winamount andgamecount to screen
     game.addChild(bet);
     game.addChild(winamount);
     game.addChild(gamecount);
     game.addChild(credit);
-    creatUI();
+    creatUI(); // creating User Interface
 
-    stage.addChild(game);
+    stage.addChild(game); // add game to the stage
 }
